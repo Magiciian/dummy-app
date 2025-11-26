@@ -1,31 +1,37 @@
-pipeline:
-  clone:
+steps:
+  - name: clone
     image: alpine/git
     commands:
       - git clone ${CI_REPO_CLONE_URL} .
 
-  run-tests:
+  - name: run-tests
     image: python:3.11
     commands:
       - pip install pytest
       - pytest
 
-  sonar-scan:
+  - name: sonar-scan
     image: sonarsource/sonar-scanner-cli
-    secrets: [ sonar_token ]
+    secrets: [ SONAR_TOKEN, SONAR_URL ]
     commands:
-      - sonar-scanner -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=$SONAR_URL
+      - sonar-scanner \
+          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.host.url=$SONAR_URL \
+          -Dsonar.projectKey=dummy-app \
+          -Dsonar.sources=.
 
-  notify:
+  - name: notify
     image: curlimages/curl
+    secrets: [ WEBHOOK_URL ]
     commands:
-      - echo "Build completed for $CI_COMMIT_SHA" | curl -X POST -H "Content-Type: text/plain" $WEBHOOK_URL
+      - echo "Build completed for $CI_COMMIT_SHA" \
+        | curl -X POST -H "Content-Type: text/plain" $WEBHOOK_URL
 
-  push-to-github:
+  - name: push-to-github
     image: alpine/git
-    secrets: [ github_token ]
+    secrets: [ GITHUB_TOKEN ]
     when:
-      status: success
+      status: [ success ]
     commands:
-      - git remote add github https://$GITHUB_TOKEN@github.com/<yourname>/dummy-app.git
+      - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
       - git push github HEAD:main
