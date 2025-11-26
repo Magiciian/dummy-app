@@ -1,3 +1,6 @@
+when:
+  event: [ push ]
+
 steps:
   - name: clone
     image: alpine/git
@@ -12,7 +15,11 @@ steps:
 
   - name: sonar-scan
     image: sonarsource/sonar-scanner-cli
-    secrets: [ SONAR_TOKEN, SONAR_URL ]
+    environment:
+      SONAR_TOKEN:
+        from_secret: SONAR_TOKEN
+      SONAR_URL:
+        from_secret: SONAR_URL
     commands:
       - >
         sonar-scanner
@@ -23,7 +30,9 @@ steps:
 
   - name: notify
     image: curlimages/curl
-    secrets: [ WEBHOOK_URL ]
+    environment:
+      WEBHOOK_URL:
+        from_secret: WEBHOOK_URL
     commands:
       - >
         echo "Build completed: $CI_COMMIT_SHA" |
@@ -31,7 +40,9 @@ steps:
 
   - name: push-to-github
     image: alpine/git
-    secrets: [ GITHUB_TOKEN ]
+    environment:
+      GITHUB_TOKEN:
+        from_secret: GITHUB_TOKEN
     when:
       status: [ success ]
     commands:
