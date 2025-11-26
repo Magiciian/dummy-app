@@ -14,18 +14,20 @@ steps:
     image: sonarsource/sonar-scanner-cli
     secrets: [ SONAR_TOKEN, SONAR_URL ]
     commands:
-      - sonar-scanner \
-          -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.host.url=$SONAR_URL \
-          -Dsonar.projectKey=dummy-app \
-          -Dsonar.sources=.
+      - >
+        sonar-scanner
+        -Dsonar.login=$SONAR_TOKEN
+        -Dsonar.host.url=$SONAR_URL
+        -Dsonar.projectKey=dummy-app
+        -Dsonar.sources=.
 
   - name: notify
     image: curlimages/curl
     secrets: [ WEBHOOK_URL ]
     commands:
-      - echo "Build completed for $CI_COMMIT_SHA" \
-        | curl -X POST -H "Content-Type: text/plain" $WEBHOOK_URL
+      - >
+        echo "Build completed: $CI_COMMIT_SHA" |
+        curl -X POST -H "Content-Type: text/plain" $WEBHOOK_URL
 
   - name: push-to-github
     image: alpine/git
