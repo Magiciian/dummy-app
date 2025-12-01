@@ -4,11 +4,34 @@ when:
 
 steps:
 
+  # - name: clone
+  #   image: alpine/git
+  #   commands:
+  #     - git clone ${CI_REPO_CLONE_URL} .
+
   - name: run-tests
     image: python:3.11
     commands:
       - pip install pytest
       - pytest
+
+  # - name: sonar-scan
+  #   image: sonarsource/sonar-scanner-cli
+  #   environment:
+  #     SONAR_TOKEN:
+  #       from_secret: SONAR_TOKEN
+  #     SONAR_URL:
+  #       from_secret: SONAR_URL
+  #     SONAR_ORGANIZATION:
+  #       from_secret: SONAR_ORGANIZATION
+  #   commands:
+  #     - >
+  #       sonar-scanner
+  #       -Dsonar.login=$SONAR_TOKEN
+  #       -Dsonar.host.url=$SONAR_URL
+  #       -Dsonar.projectKey=Magiciian_dummy-app
+  #       -Dsonar.organization=$SONAR_ORGANIZATION
+  #       -Dsonar.sources=.
 
   - name: notify
     image: curlimages/curl
@@ -16,11 +39,11 @@ steps:
       WEBHOOK_URL:
         from_secret: WEBHOOK_URL
     commands:
-      - echo "Build completed: $CI_COMMIT_SHA"
       - >
-        curl -X POST -H "Content-Type: application/json"
-        --data "{\"text\": \"Build completed: $CI_COMMIT_SHA\"}"
-        "$WEBHOOK_URL"
+        echo "Build completed: $CI_COMMIT_SHA" |
+        curl -X POST -H "Content-Type: application/json" \
+        --data "{\"text\": \"Build completed: $CI_COMMIT_SHA\"}" \
+        $WEBHOOK_URL
 
   - name: push-to-github
     image: alpine/git
@@ -28,14 +51,9 @@ steps:
       GITHUB_TOKEN:
         from_secret: GITHUB_TOKEN
     when:
-      status:
-        - success
+      status: [ success ]
     commands:
-      - rm -rf .git
-      - git init
-      - git remote add origin "${CI_REPO_CLONE_URL}"
-      - git fetch origin test
-      - git checkout -b test origin/test
-
-      - git remote add github "https://${GITHUB_TOKEN}@github.com/Magiciian/dummy-app.git"
-      - git push github test:main
+      - echo "Verifying local git integrity..."
+      - git fsck --full
+      - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
+      - git push github HEAD:main
