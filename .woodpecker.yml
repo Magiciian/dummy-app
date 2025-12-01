@@ -40,7 +40,7 @@ steps:
     commands:
       - >
         echo "Build completed: $CI_COMMIT_SHA" |
-        curl -X POST -H "Content-Type: text/plain" $WEBHOOK_URL
+        curl -X POST -H "Content-Type: text/plain" $WEBHOOK_URL  
 
   - name: push-to-github
     image: alpine/git
