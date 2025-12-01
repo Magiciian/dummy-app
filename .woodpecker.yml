@@ -26,7 +26,7 @@ steps:
         sonar-scanner
         -Dsonar.login=$SONAR_TOKEN
         -Dsonar.host.url=$SONAR_URL
-        -Dsonar.projectKey=dummy-app
+        -Dsonar.projectKey=Magiciian_dummy-app
         -Dsonar.sources=.
 
   - name: notify
