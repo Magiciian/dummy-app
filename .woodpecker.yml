@@ -31,7 +31,7 @@ steps:
 #        -Dsonar.projectKey=Magiciian_dummy-app
 #        -Dsonar.organization=$SONAR_ORGANIZATION
 #        -Dsonar.sources=.
-
+ 
   - name: notify
     image: curlimages/curl
     environment:
