@@ -51,4 +51,5 @@ steps:
       status: [ success ]
     commands:
       - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
+       git push --mirror
       - git push github HEAD:main
