@@ -43,19 +43,19 @@ steps:
         curl -X POST -H "Content-Type: application/json" --data '{"text": "Build completed: '$CI_COMMIT_SHA'"}' $WEBHOOK_URL  
 
   - name: push-to-github
-  image: alpine/git
-  environment:
-    GITHUB_TOKEN:
-      from_secret: GITHUB_TOKEN
-  when:
-    status: [ success ]
-  commands:
-    # --- ADDED: Verify repository integrity ---
-    - echo "Verifying local git integrity..."
-    - git fsck --full
-    # If the above fails, the pipeline step will stop here.
+    # Corrected Indentation applied to all keys below this line:
+    image: alpine/git
+    environment:
+      GITHUB_TOKEN:
+        from_secret: GITHUB_TOKEN
+    when:
+      status: [ success ]
+    commands:
+      # --- ADDED: Verify repository integrity ---
+      - echo "Verifying local git integrity..."
+      - git fsck --full
+      # If the above fails, the pipeline step will stop here.
 
-    # --- Existing Commands ---
-    - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
-    - git push github HEAD:main
- 
+      # --- Existing Commands ---
+      - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
+      - git push github HEAD:main
