@@ -3,7 +3,6 @@ when:
     branch: test
 
 steps:
-
   # - name: clone
   #   image: alpine/git
   #   commands:
@@ -15,23 +14,23 @@ steps:
       - pip install pytest
       - pytest
 
-  # - name: sonar-scan
-  #   image: sonarsource/sonar-scanner-cli
-  #   environment:
-  #     SONAR_TOKEN:
-  #       from_secret: SONAR_TOKEN
-  #     SONAR_URL:
-  #       from_secret: SONAR_URL
-  #     SONAR_ORGANIZATION:
-  #       from_secret: SONAR_ORGANIZATION
-  #   commands:
-  #     - >
-  #       sonar-scanner
-  #       -Dsonar.login=$SONAR_TOKEN
-  #       -Dsonar.host.url=$SONAR_URL
-  #       -Dsonar.projectKey=Magiciian_dummy-app
-  #       -Dsonar.organization=$SONAR_ORGANIZATION
-  #       -Dsonar.sources=.
+#  - name: sonar-scan
+#    image: sonarsource/sonar-scanner-cli
+#    environment:
+#      SONAR_TOKEN:
+#        from_secret: SONAR_TOKEN
+#      SONAR_URL:
+#        from_secret: SONAR_URL
+#      SONAR_ORGANIZATION:
+#      from_secret: SONAR_ORGANIZATION 
+#    commands:
+#      - >
+#        sonar-scanner
+#       -Dsonar.login=$SONAR_TOKEN
+#        -Dsonar.host.url=$SONAR_URL
+#        -Dsonar.projectKey=Magiciian_dummy-app
+#        -Dsonar.organization=$SONAR_ORGANIZATION
+#        -Dsonar.sources=.
 
   - name: notify
     image: curlimages/curl
@@ -41,11 +40,10 @@ steps:
     commands:
       - >
         echo "Build completed: $CI_COMMIT_SHA" |
-        curl -X POST -H "Content-Type: application/json" \
-        --data "{\"text\": \"Build completed: $CI_COMMIT_SHA\"}" \
-        $WEBHOOK_URL
+        curl -X POST -H "Content-Type: application/json" --data '{"text": "Build completed: '$CI_COMMIT_SHA'"}' $WEBHOOK_URL  
 
   - name: push-to-github
+    # Corrected Indentation applied to all keys below this line:
     image: alpine/git
     environment:
       GITHUB_TOKEN:
@@ -53,7 +51,11 @@ steps:
     when:
       status: [ success ]
     commands:
+      # --- ADDED: Verify repository integrity ---
       - echo "Verifying local git integrity..."
       - git fsck --full
+      # If the above fails, the pipeline step will stop here.
+
+      # --- Existing Commands ---
       - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
       - git push github HEAD:main
