@@ -41,7 +41,7 @@ steps:
       - >
         echo "Build completed: $CI_COMMIT_SHA" |
         curl -X POST -H "Content-Type: application/json" --data '{"text": "Build completed: '$CI_COMMIT_SHA'"}' $WEBHOOK_URL  
-
+ 
   - name: push-to-github
     # Corrected Indentation applied to all keys below this line:
     image: alpine/git
