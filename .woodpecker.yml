@@ -50,11 +50,13 @@ steps:
     when:
       status: [ success ]
     commands:
-      - echo "Verifying local git integrity..."
-      - git fsck --full
       - git config --global user.name "woodpecker"
       - git config --global user.email "ci@localhost"
+
       - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
-      - git fetch github main
-      - git rebase github/main
-      - git push github HEAD:main
+
+      # NO FETCH
+      # NO REBASE
+      # Just overwrite GitHub main with Gitea test
+      - git push -f github HEAD:main
+
