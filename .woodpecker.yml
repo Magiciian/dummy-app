@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 pipeline:
   clone:
     image: alpine/git
@@ -5,11 +6,25 @@ pipeline:
       - git clone ${CI_REPO_CLONE_URL} .
 
   run-tests:
+=======
+when:
+  - event: push
+    branch: test
+
+steps:
+  # - name: clone
+  #   image: alpine/git
+  #   commands:
+  #     - git clone ${CI_REPO_CLONE_URL} .
+
+  - name: run-tests
+>>>>>>> gitea/test
     image: python:3.11
     commands:
       - pip install pytest
       - pytest
 
+<<<<<<< HEAD
   sonar-scan:
     image: sonarsource/sonar-scanner-cli
     secrets: [ sonar_token ]
@@ -29,3 +44,49 @@ pipeline:
     commands:
       - git remote add github https://$GITHUB_TOKEN@github.com/<yourname>/dummy-app.git
       - git push github HEAD:main
+=======
+  # - name: sonar-scan
+  #   image: sonarsource/sonar-scanner-cli
+  #   environment:
+  #     SONAR_TOKEN:
+  #       from_secret: SONAR_TOKEN
+  #     SONAR_URL:
+  #       from_secret: SONAR_URL
+  #     SONAR_ORGANIZATION:
+  #       from_secret: SONAR_ORGANIZATION
+  #   commands:
+  #     - >
+  #       sonar-scanner
+  #       -Dsonar.login=$SONAR_TOKEN
+  #       -Dsonar.host.url=$SONAR_URL
+  #       -Dsonar.projectKey=Magiciian_dummy-app
+  #       -Dsonar.organization=$SONAR_ORGANIZATION
+  #       -Dsonar.sources=.
+
+  - name: notify
+    image: curlimages/curl
+    environment:
+      WEBHOOK_URL:
+        from_secret: WEBHOOK_URL
+    commands:
+      - >
+        echo "Build completed: $CI_COMMIT_SHA" |
+        curl -X POST -H "Content-Type: application/json" --data '{"text": "Build completed: '$CI_COMMIT_SHA'"}' $WEBHOOK_URL  
+
+  - name: push-to-github
+    image: alpine/git
+    environment:
+      GITHUB_TOKEN:
+        from_secret: GITHUB_TOKEN
+    when:
+      status: [ success ]
+    commands:
+      - echo "Verifying local git integrity..."
+      - git fsck --full
+      - git config --global user.name "woodpecker"
+      - git config --global user.email "ci@localhost"
+      - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
+      - git fetch github main
+      - git rebase github/main
+      - git push github HEAD:main
+>>>>>>> gitea/test
