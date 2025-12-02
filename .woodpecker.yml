@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-pipeline:
-  clone:
-    image: alpine/git
-    commands:
-      - git clone ${CI_REPO_CLONE_URL} .
-
-  run-tests:
-=======
 when:
   - event: push
     branch: test
@@ -18,33 +9,11 @@ steps:
   #     - git clone ${CI_REPO_CLONE_URL} .
 
   - name: run-tests
->>>>>>> gitea/test
     image: python:3.11
     commands:
       - pip install pytest
       - pytest
 
-<<<<<<< HEAD
-  sonar-scan:
-    image: sonarsource/sonar-scanner-cli
-    secrets: [ sonar_token ]
-    commands:
-      - sonar-scanner -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=$SONAR_URL
-
-  notify:
-    image: curlimages/curl
-    commands:
-      - echo "Build completed for $CI_COMMIT_SHA" | curl -X POST -H "Content-Type: text/plain" $WEBHOOK_URL
-
-  push-to-github:
-    image: alpine/git
-    secrets: [ github_token ]
-    when:
-      status: success
-    commands:
-      - git remote add github https://$GITHUB_TOKEN@github.com/<yourname>/dummy-app.git
-      - git push github HEAD:main
-=======
   # - name: sonar-scan
   #   image: sonarsource/sonar-scanner-cli
   #   environment:
@@ -89,4 +58,3 @@ steps:
       - git fetch github main
       - git rebase github/main
       - git push github HEAD:main
->>>>>>> gitea/test
