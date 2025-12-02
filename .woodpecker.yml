@@ -55,8 +55,8 @@ steps:
 
       - git remote add github https://$GITHUB_TOKEN@github.com/Magiciian/dummy-app.git
 
-      # NO FETCH
-      # NO REBASE
-      # Just overwrite GitHub main with Gitea test
-      - git push -f github HEAD:main
+      # IMPORTANT: convert shallow clone to full history
+      - git fetch --depth=1000000
 
+      # Force push Gitea -> GitHub
+      - git push -f github HEAD:main
